@@ -2,15 +2,16 @@ import React from "react";
 function About() {
   return (
     <div
-      className="container text-center text-bg-secondary row row-cols-1"
+      className="container text-center text-bg-secondary row row-cols-1 my-10"
       style={{
         margin: "auto auto",
         color: "white",
-        opacity: "0.75",
+        opacity: "1",
         borderRadius: "45px",
+        marginTop:"88px",
       }}
     >
-      <div className="col my-3 " style={{ opacity: "1" }}>
+      <div className="col my-3" style={{ opacity: "1" }}>
         <h3>
           <strong>
             This is a comprehensive and user-friendly travel platform using MERN

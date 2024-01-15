@@ -1,22 +1,43 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useCallback } from "react";
 import wayPointsContext from "../context/wayPointsContext";
-import { Link } from "react-router-dom";
-import Spinner from "./Spinner";
+import styled from "styled-components";
+import { Autocomplete, Box, Chip, Grid, TextField, Typography } from "@mui/material";
+import { debounce } from "lodash";
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import { ArrowDropDownCircleOutlined } from "@mui/icons-material";
+import ShortestRoute from "./ShortestRoute";
+
+
+const StyeledAutocomplete=styled(Autocomplete)`
+.css-1uhj2ym-MuiInputBase-root-MuiOutlinedInput-root
+{
+max-height: 200px;
+overflow: auto;
+border: 0px;
+border: 1px solid #333333;
+}
+.css-1d3z3hw-MuiOutlinedInput-notchedOutline
+{
+  border: 0px;
+}
+`
+
 const LocationSearch = () => {
-  const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
-  const { waypoints, addWayPoint, deleteWayPoint } =
-    useContext(wayPointsContext);
+  const [selectedLocation,setSelectedLocation]=useState([])
   const [loading, setLoading] = useState(false);
-  const handleInputChange = (e) => {
-    e.preventDefault();
-    setQuery(e.target.value);
+  const [open,setOpen]=useState(false)
+  const { waypoints, addWayPoint, deleteWayPoint } =useContext(wayPointsContext);
+  
+  const delWayPoints = (option) => {
+    const deleted=selectedLocation.filter((loc)=>loc.formatted!==option.formatted)
+    setSelectedLocation(deleted)
+    deleteWayPoint([option]);
   };
-  const delWayPoints = (result) => {
-    deleteWayPoint([result]);
-  };
-  const handleSearch = async (e) => {
-    e.preventDefault();
+
+
+  const onSearch = async (query) => {
+    console.log(query);
     if (query.trim() === "") {
       return;
     }
@@ -29,7 +50,8 @@ const LocationSearch = () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.results) {
-          setResults(data.results);
+          setOpen(true)
+          setResults((prev)=>[...data.results,...prev]);
         }
       })
       .catch((error) => {
@@ -38,130 +60,83 @@ const LocationSearch = () => {
     setLoading(false);
   };
 
+  const onSearchDebounce = useCallback(debounce(onSearch, 1500), []);
+
+  const onSelctedLocation=(option)=>
+  {
+ 
+
+    const add=selectedLocation?.filter((loc)=>loc?.formatted===option?.formatted)
+    console.log(add);
+    if(add.length===0)
+    {
+      addWayPoint([
+        [
+          option.formatted,
+          option.geometry.lat,
+          option.geometry.lng,
+        ],
+      ]);
+      setSelectedLocation((prev)=>[...prev,option])
+    }
+    else 
+    {
+      delWayPoints(option)
+    }
+  }
+
+
   return (
     <>
       <div
         className="container-fluid d-flex flex-column"
-        style={{ padding: "60px" }}
+        style={{ padding: "16px" }}
       >
         <div className="container-fluid d-flex justify-content-center">
-          <form className="d-flex" role="search">
-            <input
-              className="form-control me-2 bg-secondary bg-opacity-75"
-              type="text"
-              value={query}
-              onChange={handleInputChange}
-              placeholder="Enter the source"
-              aria-label="Search"
-            />
-            <button
-              className="btn btn-secondary"
-              type="submit"
-              onClick={handleSearch}
-            >
-              Search
-            </button>
-          </form>
-        </div>
-        {loading == true ? (
-          <Spinner />
-        ) : (
-          <div
-            className="container-fluid d-flex flex-column justify-content-center"
-            style={{ height: "250px", width: "400px" }}
-          >
-            <ul
-              className="d-flex flex-column text-light my-3"
-              style={{
-                display: "none",
-                listStyleType: "none",
-                padding: "0",
-                margin: "0",
-                maxHeight: "300px",
-                maxWidth: "400px",
-                overflowY: "scroll",
-                scrollbarWidth: "none",
-                scrollbarColor: "transparent transparent",
-              }}
-            >
-              {results.map((result) => (
-                <button
-                  className="text-bg-secondary bg-opacity-50"
-                  style={{
-                    curser: "pointer",
-                    padding: "2px",
-                    borderRadius: "5px",
-                  }}
-                  onClick={() => {
-                    addWayPoint([
-                      [
-                        result.formatted,
-                        result.geometry.lat,
-                        result.geometry.lng,
-                      ],
-                    ]);
-                  }}
-                  key={result.geometry.lat + result.geometry.lng}
-                >
-                  {result.formatted}
-                </button>
-              ))}
-            </ul>
-          </div>
-        )}
-        <div
-          className="container-fluid d-flex flex-column justify-content-center"
-          style={{ height: "250px", width: "400px" }}
-        >
-          {waypoints.length != 0 ? (
-            <h4 className="mx-5 text-white">Waypoints : </h4>
-          ) : (
-            <h5 className="text-black mx-5 bg-secondary bg-opacity-50 align-item-center">
-              No elements to display
-            </h5>
-          )}
-          <ul
-            className="d-flex flex-column text-light my-3"
-            style={{
-              display: "none",
-              listStyleType: "none",
-              padding: "0",
-              margin: "0",
-              maxHeight: "300px",
-              maxWidth: "400px",
-              overflowY: "scroll",
-              scrollbarWidth: "none",
-              scrollbarColor: "transparent transparent",
+              <StyeledAutocomplete
+                value={selectedLocation}
+                key={results}
+                className="form-control bg-opacity-0"
+                multiple
+                id="multiple-limit-tags"
+                options={results}
+                getOptionLabel={(option) => option.label}
+                popupIcon={<ArrowDropDownCircleOutlined onClick={()=>setOpen((prev)=>!prev)}/>}
+                open={open}
+                sx={{ width: '500px' }}
+                defaultValue={selectedLocation}
+                renderTags={(value, getTagProps) =>{
+                 return value.map((option, index) => (
+                    <Chip variant="outlined" label={option.formatted} 
+                    {...getTagProps({ index })} onDelete={()=>{delWayPoints(option)}} />
+                  ))
+                }
+                }
+                renderInput={(params) => (
+                  <TextField {...params}
+                   label="Locations" 
+                  placeholder="Locations" 
+                  onChange={(e)=>{onSearchDebounce(e.target.value)}}/>
+                )}
+              renderOption={(props, option) => {
+              return (
+                <li {...props} options={results}>
+                  <Grid container alignItems="center" onClick={()=>onSelctedLocation(option)}>
+                    <Grid item sx={{ display: 'flex', width: 44 }}>
+                      <LocationOnIcon sx={{ color: 'text.secondary' }} />
+                    </Grid>
+                    <Grid item sx={{ width: 'calc(100% - 44px)', wordWrap: 'break-word' }}>
+                        <Typography variant="body2" color="text.secondary">
+                        {option.formatted}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </li>
+              );
             }}
-          >
-            {waypoints.map((result) => (
-              <button
-                className="text-bg-secondary bg-opacity-50"
-                key={result[1] + result[2]}
-                onClick={() => {
-                  delWayPoints(result);
-                }}
-              >
-                {result[0]}
-              </button>
-            ))}
-          </ul>
+              />
         </div>
-        <div className="container-fluid d-flex flex-column justify-content-center align-items-center">
-          {waypoints.length > 1 && (
-            <button
-              className="text-bg-primary bg-opacity-50"
-              style={{ width: "300px" }}
-            >
-              <Link
-                to="/route"
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                Click here to continue
-              </Link>
-            </button>
-          )}
-        </div>
+  {waypoints.length>0&&<ShortestRoute />}
       </div>
     </>
   );

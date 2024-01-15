@@ -1,11 +1,12 @@
 import React, { useEffect, useContext, useState, useRef } from "react";
 import wayPointsContext from "../context/wayPointsContext";
 import shortestPathContext from "../context/shortestPathContext";
+import { Button } from "@mui/material";
 const ShortestRoute = () => {
   const [dist, setDist] = useState(null);
   const { waypoints, setWaypoints } = useContext(wayPointsContext);
   const { shortestPath, setShortestPath } = useContext(shortestPathContext);
-  const [disabledValue, setDisabledValue] = useState(false);
+  const [disabledValue, setDisabledValue] = useState("");
   const ref = useRef(null);
   useEffect(() => {
     if (dist != null) {
@@ -87,8 +88,6 @@ const ShortestRoute = () => {
       });
   };
   const findRoute = (source) => {
-    let flag = true;
-    setDisabledValue(flag);
     const lat = Number(source.split(",")[source.split(",").length - 2]);
     const lon = Number(source.split(",")[source.split(",").length - 1]);
     let c = 0;
@@ -116,6 +115,7 @@ const ShortestRoute = () => {
     setWaypoints(changedwaypoints);
     getDistMatrix(locations);
   };
+
   return (
     <>
       <div
@@ -124,10 +124,10 @@ const ShortestRoute = () => {
       >
         <div
           className="container-fluid d-flex flex-column justify-content-center"
-          style={{ height: "250px", width: "400px" }}
+          style={{ height: "250px", width: "500px" }}
         >
-          {waypoints.length >= 1 && (
-            <select className="form-select" size="10" aria-label="" ref={ref}>
+            <select className="form-select" size="10" aria-label="" ref={ref}
+             onChange={(e)=>{setDisabledValue(e.target.value.length>0)}}>
               {waypoints.map((ele) => {
                 return (
                   <option key={ele[0] + ele[1]} value={ele}>
@@ -136,19 +136,15 @@ const ShortestRoute = () => {
                 );
               })}
             </select>
-          )}
-          {waypoints.length >= 1 && (
-            <button
-              className="text-bg-primary bg-opacity-50 conatiner-flex my-5"
-              style={{ width: "100%" }}
+            <Button variant="contained"
+             className="text-bg-default bg-opacity-0 conatiner-flex my-5"
               onClick={() => {
                 findRoute(ref.current.value);
-              }}
-              disabled={disabledValue}
+            }}
+            disabled={!disabledValue}
             >
-              Click here to find shortest path
-            </button>
-          )}
+            Click here to find shortest path
+            </Button>
         </div>
       </div>
     </>

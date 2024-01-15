@@ -3,7 +3,7 @@ import NavBar from "./components/NavBar";
 import { BrowserRouter as Router } from "react-router-dom";
 import WayPointsState from "./context/WayPointsState";
 import ShortestPathState from "./context/ShortestPathState";
-import Main from "./components/Main.js";
+import AppRoutes from "./routes/AppRoutes.js";
 function App() {
   return (
     <div
@@ -22,7 +22,7 @@ function App() {
         <ShortestPathState>
           <Router>
             <NavBar />
-            <Main />
+            <AppRoutes />
           </Router>
         </ShortestPathState>
       </WayPointsState>

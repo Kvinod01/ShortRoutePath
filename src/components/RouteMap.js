@@ -8,6 +8,18 @@ import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import wayPointsContext from "../context/wayPointsContext";
 import shortestPathContext from "../context/shortestPathContext";
+import styled from "styled-components";
+
+const StyledDiv=styled.div`
+.leaflet-control-container .leaflet-right
+{
+  max-height: calc(100vh - 120px) !important;
+  overflow: auto;
+  display: flex;
+  flex-direction: column-reverse;
+
+}
+`
 const RouteMap = () => {
   const mapContainerRef = useRef(null);
   const [map, setMap] = useState(null);
@@ -44,23 +56,24 @@ const RouteMap = () => {
       leafletMap.remove();
     };
   }, []);
-  // useEffect(() => {
-  //   const temp = map;
-  //   if (temp)
-  //     temp.eachLayer(function (layer) {
-  //       if (layer instanceof L.Marker) {
-  //         temp.removeLayer(layer);
-  //       }
-  //     });
-  //   if (map && waypoints.length > 0) {
-  //     waypoints.forEach((ele) => {
-  //       L.marker([ele[1], ele[2]], { icon: defaultIcon }).addTo(temp);
-  //     });
-  //     setMap(temp);
-  //   }
-  // }, [waypoints]);
+  useEffect(() => {
+    const temp = map;
+    if (temp)
+      temp.eachLayer(function (layer) {
+        if (layer instanceof L.Marker) {
+          temp.removeLayer(layer);
+        }
+      });
+    if (map && waypoints.length > 0) {
+      waypoints.forEach((ele) => {
+        L.marker([ele[1], ele[2]], { icon: defaultIcon }).addTo(temp);
+      });
+      setMap(temp);
+    }
+  }, [waypoints]);
   useEffect(() => {
     if (shortestPath.length != 0) {
+     
       let ways = [];
       for (let i = 0; i < shortestPath.length; i++) {
         ways.push(
@@ -81,7 +94,7 @@ const RouteMap = () => {
     }
   }, [shortestPath]);
   return (
-    <div
+    <StyledDiv
       className="container-fluid d-flex"
       ref={mapContainerRef}
       style={{
@@ -90,7 +103,7 @@ const RouteMap = () => {
         boxShadow: "0 0 4px #ccc, 0 0 8px #ccc, 0 0 12px #ccc, 0 0 16px #ccc",
         bordeRadius: "4px",
       }}
-    ></div>
+    ></StyledDiv>
   );
 };
 

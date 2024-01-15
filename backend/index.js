@@ -12,7 +12,7 @@ const JWT_SECRET =
   "hvdvay6ert72839289()aiyg8t87qt72393293883uhefiuh78ttq3ifi78272jbkj?[]]pou89ywe";
 
 const mongoUrl =
-  "mongodb+srv://saiharsha1268:Harsha@cluster0.vkt1k7l.mongodb.net/?retryWrites=true&w=majority";
+  "mongodb+srv://katravathvinod:vinod@cluster0.ytz66pq.mongodb.net/?retryWrites=true&w=majority";
 mongoose
   .connect(mongoUrl, {
     useNewUrlParser: true,
@@ -56,8 +56,9 @@ app.post("/login-user", async (req, res) => {
   }
   if (await bcrypt.compare(password, user.password)) {
     const token = jwt.sign({}, JWT_SECRET);
+    const exist = await User.findOne({ email });
     if (res.status(201)) {
-      return res.json({ status: "ok", data: token });
+      return res.json({ status: "ok", data: token, user:exist });
     } else {
       return res.json({ error: "error" });
     }
