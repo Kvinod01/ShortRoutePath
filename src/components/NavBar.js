@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { Avatar, Box, Button, IconButton, Menu, MenuItem, MenuList, Tooltip, Typography } from "@mui/material";
 import { useAuth } from "../context/AuthProvider";
+import shortestPathContext from "../context/shortestPathContext";
+import wayPointsContext from "../context/wayPointsContext";
 
 const StyledNav=styled.nav`
 background-color: #FFFFFF;
@@ -49,6 +51,9 @@ function NavBar() {
   const auth=useAuth()
   const user=auth.user
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const { shortestPath, setShortestPath } = useContext(shortestPathContext);
+  const {  deleteWayPoint } =useContext(wayPointsContext);
+
 
 
   const handleOpenUserMenu = (event) => {
@@ -86,7 +91,7 @@ function NavBar() {
                   to="/"
                   className="nav-link active fs-5"
                   aria-current="page"
-                  href="#"
+                  onClick={()=>{deleteWayPoint({});setShortestPath([])}}
                 >
                   Home
                 </Link>

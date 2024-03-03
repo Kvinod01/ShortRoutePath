@@ -6,6 +6,7 @@ import { debounce } from "lodash";
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { ArrowDropDownCircleOutlined } from "@mui/icons-material";
 import ShortestRoute from "./ShortestRoute";
+import shortestPathContext from "../context/shortestPathContext";
 
 
 const StyeledAutocomplete=styled(Autocomplete)`
@@ -28,6 +29,9 @@ const LocationSearch = () => {
   const [loading, setLoading] = useState(false);
   const [open,setOpen]=useState(false)
   const { waypoints, addWayPoint, deleteWayPoint } =useContext(wayPointsContext);
+  const { shortestPath, setShortestPath } = useContext(shortestPathContext);
+  
+
   
   const delWayPoints = (option) => {
     const deleted=selectedLocation.filter((loc)=>loc.formatted!==option.formatted)
@@ -64,10 +68,7 @@ const LocationSearch = () => {
 
   const onSelctedLocation=(option)=>
   {
- 
-
     const add=selectedLocation?.filter((loc)=>loc?.formatted===option?.formatted)
-    console.log(add);
     if(add.length===0)
     {
       addWayPoint([
@@ -136,7 +137,7 @@ const LocationSearch = () => {
             }}
               />
         </div>
-  {waypoints.length>0&&<ShortestRoute />}
+    <ShortestRoute key={shortestPath.length}/>
       </div>
     </>
   );

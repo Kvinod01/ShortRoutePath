@@ -3,23 +3,17 @@ import wayPointsContext from "../context/wayPointsContext";
 import shortestPathContext from "../context/shortestPathContext";
 import { Button } from "@mui/material";
 const ShortestRoute = () => {
-  const [dist, setDist] = useState(null);
   const { waypoints, setWaypoints } = useContext(wayPointsContext);
   const { shortestPath, setShortestPath } = useContext(shortestPathContext);
   const [disabledValue, setDisabledValue] = useState("");
   const ref = useRef(null);
-  useEffect(() => {
-    if (dist != null) {
-      TSP();
-    }
-  }, [dist]);
-  useEffect(() => {
-    if (shortestPath.length != 0) {
-    }
-  }, [shortestPath]);
-
+  // useEffect(() => {
+  //   if (dist != null) {
+  //     TSP();
+  //   }
+  // }, [dist]);
   //Traveling Sales Person Problem
-  const TSP = () => {
+  const TSP = (dist) => {
     let MAX = 1e9;
     let distance = dist.distances;
     distance.splice(0, 0, new Array(distance[0].length + 1).fill(0));
@@ -51,6 +45,7 @@ const ShortestRoute = () => {
       memo[i][mask] = res;
       return res;
     }
+
     let [cost, path] = [MAX, []];
     for (let i = 1; i <= n; i++) {
       let [currentCost, currentPath] = findSmallestPath(i, (1 << (n + 1)) - 1);
@@ -61,6 +56,7 @@ const ShortestRoute = () => {
     }
     setShortestPath(path);
   };
+
   const getDistMatrix = (locations) => {
     fetch("https://api.openrouteservice.org/v2/matrix/driving-car", {
       method: "POST",
@@ -81,12 +77,13 @@ const ShortestRoute = () => {
         return response.json();
       })
       .then((data) => {
-        setDist(data);
+        TSP(data);
       })
       .catch((error) => {
         console.error("Error:", error);
       });
   };
+
   const findRoute = (source) => {
     const lat = Number(source.split(",")[source.split(",").length - 2]);
     const lon = Number(source.split(",")[source.split(",").length - 1]);
@@ -116,11 +113,15 @@ const ShortestRoute = () => {
     getDistMatrix(locations);
   };
 
+
+
   return (
     <>
+    {waypoints.length>0&&
       <div
         className="container-flex d-flex flex-column justify-content-center"
         style={{ width: "100%", height: "100vh" }}
+        key={waypoints.length}
       >
         <div
           className="container-fluid d-flex flex-column justify-content-center"
@@ -146,8 +147,14 @@ const ShortestRoute = () => {
             Click here to find shortest path
             </Button>
         </div>
-      </div>
+      </div>}
     </>
   );
 };
 export default ShortestRoute;
+
+
+
+
+
+

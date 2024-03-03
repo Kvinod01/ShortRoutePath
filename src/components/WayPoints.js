@@ -3,6 +3,10 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import LocationSearch from './LocationSearch'
 import RouteMap from './RouteMap'
+import Map from './Map'
+import shortestPathContext from '../context/shortestPathContext'
+
+
 
 
 const StyledContainer=styled.div`
@@ -12,10 +16,11 @@ const StyledContainer=styled.div`
 `
 
 function WayPoints(props) {
+  const { shortestPath, setShortestPath } = useContext(shortestPathContext);
   return (
-    <StyledContainer className="container-fluid d-flex">
+    <StyledContainer className="container-fluid d-flex" >
         <LocationSearch />
-        <RouteMap />
+        <RouteMap key={shortestPath.length}/>
     </StyledContainer>
   )
 }

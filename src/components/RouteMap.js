@@ -25,6 +25,8 @@ const RouteMap = () => {
   const [map, setMap] = useState(null);
   const { waypoints } = useContext(wayPointsContext);
   const { shortestPath, setShortestPath } = useContext(shortestPathContext);
+console.log(waypoints);
+  console.log(shortestPath);
   const defaultIcon = new L.icon({
     iconUrl: require("../../node_modules/leaflet/dist/images/marker-icon.png"),
     iconSize: [25, 41],
@@ -56,6 +58,7 @@ const RouteMap = () => {
       leafletMap.remove();
     };
   }, []);
+
   useEffect(() => {
     const temp = map;
     if (temp)
@@ -71,9 +74,12 @@ const RouteMap = () => {
       setMap(temp);
     }
   }, [waypoints]);
+
+  console.log(waypoints);
+  console.log(shortestPath);
+
   useEffect(() => {
-    if (shortestPath.length != 0) {
-     
+    if (shortestPath.length !== 0) {
       let ways = [];
       for (let i = 0; i < shortestPath.length; i++) {
         ways.push(
@@ -83,18 +89,22 @@ const RouteMap = () => {
           )
         );
       }
-      const temp = map;
-      L.Routing.control({
-        waypoints: ways,
-        router: L.Routing.osrmv1({
-          serviceUrl: "http://router.project-osrm.org/route/v1",
-        }),
-      }).addTo(temp);
-      setMap(temp);
+      setMap((prevMap) => {
+        L.Routing.control({
+          waypoints: ways,
+          router: L.Routing.osrmv1({
+            serviceUrl: "http://router.project-osrm.org/route/v1",
+          }),
+        }).addTo(prevMap);
+    
+        return prevMap;
+      });
     }
   }, [shortestPath]);
+
   return (
     <StyledDiv
+    key={mapContainerRef}
       className="container-fluid d-flex"
       ref={mapContainerRef}
       style={{

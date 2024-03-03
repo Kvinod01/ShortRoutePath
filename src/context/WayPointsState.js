@@ -20,14 +20,10 @@ const WayPointsState = (props) => {
   const deleteWayPoint = (waypoint) => {
     setWaypoints(
       waypoints.filter((item) => {
-        return !(
-          waypoint[0][0] == item[0] &&
-          waypoint[0][1] == item[1] &&
-          waypoint[0][2] == item[2]
-        );
-      })
+        return ( waypoint[0].formatted !== item[0]) })
     );
   };
+  console.log(waypoints);
   return (
     <WayPointsContext.Provider
       value={{ waypoints, setWaypoints, addWayPoint, deleteWayPoint }}
